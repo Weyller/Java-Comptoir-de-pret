@@ -3,13 +3,19 @@ package databaseController;
 import java.sql.*;
 import java.util.ArrayList;
 
+import com.mysql.jdbc.Statement;
+
 import model.Article;
 import model.Categorie;
 import model.Matiere;
 import model.Programme;
 import model.Utilisateur;
 
-public class RequetesMySQL {
+public class RequetesMySQL  {
+	
+	
+	
+	
 
 	// Nom de la base de donnees
 	static public final String DATABASE_NAME = "ig_pret";
@@ -112,20 +118,26 @@ public class RequetesMySQL {
 	static public final String PRET_TERMINE_PRET = "pret.pret_termine";
 	static public final String COMMENTAIRE_PRET = "pret.commentaire";
 
-	String url = DATABASE_ADRESSE + DATABASE_NAME;
-	Connection connection;
-	Statement statement;
-	ResultSet resultSet;
+	static String url = DATABASE_ADRESSE + DATABASE_NAME;
+	static Connection connection;
+	static java.sql.Statement statement;
+	static ResultSet resultSet;
+
+	public RequetesMySQL() throws SQLException, ClassNotFoundException  {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	//************** ETABLIR CONNEXION **********
-	public void etablirConnexion () throws SQLException, ClassNotFoundException {
+	public static void etablirConnexion () throws SQLException, ClassNotFoundException  {
+	
 		Class.forName("com.mysql.jdbc.Driver");
 		connection = DriverManager.getConnection(url, "root", "root");
 		statement = connection.createStatement();	
 	}
 
 	//************** FERME CONNEXION **********
-	public void fermerConnexion () throws SQLException{
+	public static void fermerConnexion () throws SQLException{
 		resultSet.close();
 		statement.close();
 		connection.close();	
@@ -645,6 +657,65 @@ public class RequetesMySQL {
 
 
 
+	
+	
+	//=====================================================================================================
+	//============================= NEW QUERIES  ==============================
+	
+	//**************  RECHERCHER CATEGORIE ****************************
+	public static ArrayList<Categorie> recupererCategories()
+			{
+
+		ArrayList<Categorie> categories = new ArrayList<>();
+
+		try {
+			etablirConnexion();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // Lance la connexion au serveur
+		
+		//
+		try {
+			resultSet =  statement.executeQuery("SELECT * FROM " + TABLE_CATEGORIE);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//
+		try {
+			while (resultSet.next() ){
+				int idResult = resultSet.getInt(ID_CATEGORIE);
+				String nomResult = resultSet.getString(NOM_CATEGORIE);
+
+				// Creation de la categorie
+				Categorie categorie = new Categorie();
+				categorie.setId(idResult);
+				categorie.setNom(nomResult);
+
+				// Ajout de la categorie dans la Liste
+				categories.add(categorie);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//
+		try {
+			fermerConnexion ();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // Ferme la connexion au serveur
+		return categories;
+	} // end of recupererCategorie
+
+	
+	
+	
 
 
 	// *****************************************************************
